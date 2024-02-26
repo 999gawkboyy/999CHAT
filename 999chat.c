@@ -62,8 +62,8 @@ void *publish_thread(void *arg) {
         if (strcmp(input, "exit") == 0) {
             break;
         }
-
-        mosquitto_publish(mosq, NULL, "chat", strlen(input), input, 0, false);
+	char *channel = (char *)arg;
+        mosquitto_publish(mosq, NULL, channel, strlen(input), input, 0, false);
     }
 
     return NULL;
@@ -72,6 +72,13 @@ void *publish_thread(void *arg) {
 int main(int argc, char const *argv[])
 {
     init();
+    char channel[10];
+    printf("Channel: ");
+    fgets(channel, sizeof(channel), stdin);
+    size_t len = strlen(channel);
+    if (len > 0 && channel[len - 1] == '\n') {
+        channel[len - 1] = '\0';
+    }
     mosquitto_lib_init();
 
     mosq = mosquitto_new(NULL, true, NULL);
@@ -88,11 +95,11 @@ int main(int argc, char const *argv[])
         mosquitto_destroy(mosq);
         return 1;
     }
-    mosquitto_subscribe(mosq, NULL, "chat", 0);
+    mosquitto_subscribe(mosq, NULL, channel, 0);
     pthread_t subscribe_tid, publish_tid;
 
     pthread_create(&subscribe_tid, NULL, subscribe_thread, NULL);
-    pthread_create(&publish_tid, NULL, publish_thread, NULL);
+    pthread_create(&publish_tid, NULL, publish_thread, (void *)channel);
 
     pthread_join(subscribe_tid, NULL);
     pthread_join(publish_tid, NULL);
