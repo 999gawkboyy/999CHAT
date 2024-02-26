@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mosquitto.h>
+#include <pthread.h>
 
 #ifdef _WIN32 || _WIN64
     #define OS "windows"
@@ -10,6 +11,8 @@
 #ifdef __linux__ || linux || __linux
     #define OS "linux"
 #endif
+
+#define ADDRESS "52.78.35.165"
 
 void init() {
     system("clear");
@@ -33,11 +36,33 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     printf("Received message on topic %s: %s\n", message->topic, (char *)message->payload);
 }
 
+void *subscribe_thread(void *arg) {
+    mosquitto_loop_start(mosq);
+    return NULL;
+}
+
+void *publish_thread(void *arg) {
+    char input[100];
+    while (1) {
+        printf("Enter message: ");
+        fgets(input, sizeof(input), stdin);
+        if (strlen(input) > 0 && input[strlen(input) - 1] == '\n') {
+            input[strlen(input) - 1] = '\0';
+        }
+
+        if (strcmp(input, "exit") == 0) {
+            break;
+        }
+
+        mosquitto_publish(mosq, NULL, "chat", strlen(input), input, 0, false);
+    }
+
+    return NULL;
+}
 
 int main(int argc, char const *argv[])
 {
     init();
-
     mosquitto_lib_init();
 
     mosq = mosquitto_new(NULL, true, NULL);
@@ -49,31 +74,22 @@ int main(int argc, char const *argv[])
     mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_message_callback_set(mosq, on_message);
 
-    if (mosquitto_connect(mosq, "52.78.35.165", 1883, 60) != MOSQ_ERR_SUCCESS) {
+    if (mosquitto_connect(mosq, ADDRESS, 1883, 60) != MOSQ_ERR_SUCCESS) {
         fprintf(stderr, "Error: Unable to connect to the broker\n");
         mosquitto_destroy(mosq);
         return 1;
     }
-
     mosquitto_subscribe(mosq, NULL, "chat", 0);
+    pthread_t subscribe_tid, publish_tid;
 
-    char input[100];
-    while (1) {
-        printf("Enter message: ");
-        fgets(input, sizeof(input), stdin);
-        if (strlen(input) > 0 && input[strlen(input) - 1] == '\n') {
-            input[strlen(input) - 1] = '\0'; // Remove the newline character
-        }
+    pthread_create(&subscribe_tid, NULL, subscribe_thread, NULL);
+    pthread_create(&publish_tid, NULL, publish_thread, NULL);
 
-        if (strcmp(input, "exit") == 0) {
-            break;
-        }
-
-        mosquitto_publish(mosq, NULL, "chat", strlen(input), input, 0, false);
-    }
+    pthread_join(subscribe_tid, NULL);
+    pthread_join(publish_tid, NULL);
 
     mosquitto_disconnect(mosq);
     mosquitto_destroy(mosq);
-    mosquitto_lib_cleanup();	
+    mosquitto_lib_cleanup();
     return 0;
 }

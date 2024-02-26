@@ -1,9 +1,0 @@
-1708923728: mosquitto version 2.0.11 starting
-1708923728: Using default config.
-1708923728: Starting in local only mode. Connections will only be possible from clients running on this machine.
-1708923728: Create a configuration file which defines a listener to allow remote access.
-1708923728: For more details see https://mosquitto.org/documentation/authentication-methods/
-1708923728: Opening ipv4 listen socket on port 1883.
-1708923728: Opening ipv6 listen socket on port 1883.
-1708923728: mosquitto version 2.0.11 running
-1708923879: mosquitto version 2.0.11 terminating
