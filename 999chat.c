@@ -16,10 +16,19 @@
 
 void init() {
     system("clear");
-    if (strcmp(OS, "windows") == 0)
-	system("python main.py");
-    else
-	system("python3 main.py");
+    FILE *file = fopen("txt.txt", "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    char line[2048];
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        printf("%s", line);
+    }
+
+    fclose(file);
 }
 
 struct mosquitto *mosq;
