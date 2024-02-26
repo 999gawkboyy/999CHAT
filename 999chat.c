@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32 || _WIN64
+	#define OS "windows"
+#endif
+
+#ifdef __linux__ || linux || __linux
+	#define OS "linux"
+#endif
+
 typedef struct {
 	char username[30];
 	char password[30];
@@ -9,7 +17,10 @@ typedef struct {
 
 void init() {
 	system("clear");
-	system("python main.py");
+	if (strcmp(OS, "windows") == 0)
+		system("python main.py");
+	else
+		system("python3 main.py");
 }
 
 User Login() {
