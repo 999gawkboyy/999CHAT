@@ -2,10 +2,10 @@ LDLIBS += -lmosquitto
 
 CC = gcc
 
-all: 999chat.sh
+all: 999chat
 
 999chat.sh: 999chat.c
-	$(CC) -o 999chat.sh 999chat.c $(LDLIBS)
+	$(CC) -o 999chat 999chat.c $(LDLIBS)
 
 clean:
-	rm -f 999chat.sh *.o
+	rm -f 999chat *.o
