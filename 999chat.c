@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mosquitto.h>
 #include <pthread.h>
+#include <mosquitto.h>
 
 #ifdef _WIN32 || _WIN64
     #define OS "windows"
