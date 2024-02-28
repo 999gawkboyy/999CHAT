@@ -3,33 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <mosquitto.h>
-
-#ifdef _WIN32 || _WIN64
-    #define OS "windows"
-#endif
-
-#ifdef __linux__ || linux || __linux
-    #define OS "linux"
-#endif
-
-#define ADDRESS "52.78.35.165"
-
-void init() {
-    system("clear");
-    FILE *file = fopen("txt.txt", "r");
-    if (file == NULL) {
-        perror("Error opening file");
-        return 1;
-    }
-
-    char line[2048];
-
-    while (fgets(line, sizeof(line), file) != NULL) {
-        printf("%s", line);
-    }
-
-    fclose(file);
-}
+#include "chat.h"
 
 struct mosquitto *mosq;
 
@@ -62,23 +36,14 @@ void *publish_thread(void *arg) {
         if (strcmp(input, "exit") == 0) {
             break;
         }
-	char *channel = (char *)arg;
+        char *channel = (char *)arg;
         mosquitto_publish(mosq, NULL, channel, strlen(input), input, 0, false);
     }
 
     return NULL;
 }
 
-int main(int argc, char const *argv[])
-{
-    init();
-    char channel[10];
-    printf("Channel: ");
-    fgets(channel, sizeof(channel), stdin);
-    size_t len = strlen(channel);
-    if (len > 0 && channel[len - 1] == '\n') {
-        channel[len - 1] = '\0';
-    }
+void chat(char *channel) {
     mosquitto_lib_init();
 
     mosq = mosquitto_new(NULL, true, NULL);
@@ -107,5 +72,4 @@ int main(int argc, char const *argv[])
     mosquitto_disconnect(mosq);
     mosquitto_destroy(mosq);
     mosquitto_lib_cleanup();
-    return 0;
 }
