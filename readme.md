@@ -13,8 +13,13 @@ make
 ./999chat
 ```
 
-2. Download release
+2. Download release  
 릴리즈 배포 예정
 
 ### Use in windows
 exe 파일 및 릴리즈  배포 예정 
+
+-------------------------------------------------------------------------
+##TODO:
+1. 로그인 회원가입 만들기  
+2. 각종 명령어 구현 (/create, /invite, /kick, /ban, 등등)
