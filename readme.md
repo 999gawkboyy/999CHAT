@@ -7,6 +7,7 @@
 ### Use in linux
 1. Build code
 ```
+sudo apt-get install libmosquitto-dev
 git clone https://github.com/999gawkboyy/999CHAT.git
 cd src
 make
