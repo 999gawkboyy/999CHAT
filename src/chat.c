@@ -6,6 +6,7 @@
 #include "chat.h"
 
 struct mosquitto *mosq;
+int i = 7;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == 0) {
@@ -16,7 +17,11 @@ void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
 }
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
-    printf("\n%s", (char *)message->payload);
+    printf("\033[%d;0H\033[K", i);
+    printf("%s", (char *)message->payload);
+    i++;
+    printf("\033[%d;0H", i);
+    printf("> ");
 }
 
 void *subscribe_thread(void *arg) {
