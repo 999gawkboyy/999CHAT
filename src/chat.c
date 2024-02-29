@@ -9,14 +9,14 @@ struct mosquitto *mosq;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == 0) {
-        printf("Connected to the broker\n");
+        
     } else {
         fprintf(stderr, "Failed to connect to the broker\n");
     }
 }
 
 void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_message *message) {
-    printf("Received message on topic %s: %s\n", message->topic, (char *)message->payload);
+    printf("\n%s", (char *)message->payload);
 }
 
 void *subscribe_thread(void *arg) {
@@ -26,8 +26,10 @@ void *subscribe_thread(void *arg) {
 
 void *publish_thread(void *arg) {
     char input[100];
+    char *channel = (char *)arg;
+    mosquitto_publish(mosq, NULL, channel, strlen("입장하셨습니다"), "입장하셨습니다", 0, false);
     while (1) {
-        printf("Enter message: ");
+        fflush(stdout);
         fgets(input, sizeof(input), stdin);
         if (strlen(input) > 0 && input[strlen(input) - 1] == '\n') {
             input[strlen(input) - 1] = '\0';
@@ -36,7 +38,7 @@ void *publish_thread(void *arg) {
         if (strcmp(input, "exit") == 0) {
             break;
         }
-        char *channel = (char *)arg;
+        
         mosquitto_publish(mosq, NULL, channel, strlen(input), input, 0, false);
     }
 
