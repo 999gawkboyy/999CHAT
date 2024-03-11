@@ -14,4 +14,4 @@ void *subscribe_thread(void *arg);
 
 void *publish_thread(void *arg);
 
-void chat(char *channel);
+void chat(char *channel, char *username);

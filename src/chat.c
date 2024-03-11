@@ -6,7 +6,8 @@
 #include "chat.h"
 
 struct mosquitto *mosq;
-int i = 8;
+int i = 9;
+char *username;
 
 void on_connect(struct mosquitto *mosq, void *userdata, int rc) {
     if (rc == 0) {
@@ -24,7 +25,7 @@ void on_message(struct mosquitto *mosq, void *userdata, const struct mosquitto_m
     i++;
     printf("\n");
     fflush(stdout);
-    printf("%d> ", i);
+    printf("%s> ", username);
     fflush(stdout);
 }
 
@@ -36,7 +37,10 @@ void *subscribe_thread(void *arg) {
 void *publish_thread(void *arg) {
     char input[100];
     char *channel = (char *)arg;
-    mosquitto_publish(mosq, NULL, channel, strlen("입장하셨습니다"), "입장하셨습니다", 0, false);
+    char entryMsg[100];
+    char msg[120];
+    sprintf(entryMsg, "%s님이 입장하셨습니다", username);
+    mosquitto_publish(mosq, NULL, channel, strlen(entryMsg), entryMsg, 0, false);
     while (1) {
         fflush(stdout);
         fgets(input, sizeof(input), stdin);
@@ -47,15 +51,19 @@ void *publish_thread(void *arg) {
         if (strcmp(input, "exit") == 0) {
             break;
         }
-        
-        mosquitto_publish(mosq, NULL, channel, strlen(input), input, 0, false);
+
+	sprintf(msg, "%s> %s", username, input);
+
+        mosquitto_publish(mosq, NULL, channel, strlen(msg), msg, 0, false);
     }
 
     return NULL;
 }
 
-void chat(char *channel) {
+void chat(char *channel, char *un) {
     mosquitto_lib_init();
+    
+    username = un;
 
     mosq = mosquitto_new(NULL, true, NULL);
     if (!mosq) {
